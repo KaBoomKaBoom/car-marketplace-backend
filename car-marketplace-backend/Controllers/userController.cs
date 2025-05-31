@@ -106,6 +106,7 @@ namespace car_marketplace_backend.Controllers
         [Authorize(Roles = "USER")]
         public async Task<IActionResult> UpdateCar(int id, [FromBody] AddCarDto updateCarDto)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -118,7 +119,7 @@ namespace car_marketplace_backend.Controllers
                 {
                     return NotFound($"Car with ID {id} not found.");
                 }
-                if (car.UserId != updateCarDto.UserId)
+                if (car.UserId.ToString() != userId)
                 {
                     return Forbid("You can only update your own cars.");
                 }
@@ -156,12 +157,17 @@ namespace car_marketplace_backend.Controllers
         [Authorize(Roles = "USER")]
         public async Task<IActionResult> DeleteCar(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
                 var car = await _context.Cars.FindAsync(id);
                 if (car == null)
                 {
                     return NotFound($"Car with ID {id} not found.");
+                }
+                if (car.UserId.ToString() != userId)
+                {
+                    return Forbid("You can only delete your own cars.");
                 }
 
                 _context.Cars.Remove(car);
@@ -198,6 +204,31 @@ namespace car_marketplace_backend.Controllers
                     user.Username,
                     user.Email
                 });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("profile/cars")]
+        [Authorize(Roles = "USER")]
+        public async Task<IActionResult> GetUserCars()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized("User not authenticated.");
+            }
+
+            try
+            {
+                var cars = await _context.Cars.Where(c => c.UserId.ToString() == userId).ToListAsync();
+                if (cars == null || !cars.Any())
+                {
+                    return NotFound("No cars found for this user.");
+                }
+                return Ok(cars);
             }
             catch (Exception ex)
             {
