@@ -165,5 +165,89 @@ namespace car_marketplace_backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
             }
         }
+
+        [HttpPost("addCar")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult AddCar([FromBody] Car car)
+        {
+            if (car == null || string.IsNullOrEmpty(car.Make) || string.IsNullOrEmpty(car.Model) || car.Price <= 0)
+            {
+                return BadRequest("Invalid car data.");
+            }
+
+            try
+            {
+                _context.Cars.Add(car);
+                _context.SaveChanges();
+                return CreatedAtAction(nameof(GetCarById), new { id = car.Id }, car);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+        [HttpPut("updateCar/{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult UpdateCar(int id, [FromBody] Car car)
+        {
+            if (car == null || string.IsNullOrEmpty(car.Make) || string.IsNullOrEmpty(car.Model) || car.Price <= 0)
+            {
+                return BadRequest("Invalid car data.");
+            }
+
+            try
+            {
+                var existingCar = _context.Cars.Find(id);
+                if (existingCar == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+
+                existingCar.Make = car.Make;
+                existingCar.Model = car.Model;
+                existingCar.Year = car.Year;
+                existingCar.Price = car.Price;
+                existingCar.Mileage = car.Mileage;
+                existingCar.Color = car.Color;
+                existingCar.Transmission = car.Transmission;
+                existingCar.Fuel = car.Fuel;
+                existingCar.HorsePower = car.HorsePower;
+                existingCar.Torque = car.Torque;
+                existingCar.Interior = car.Interior;
+                existingCar.Drive = car.Drive;
+                existingCar.Category = car.Category;
+                existingCar.Description = car.Description;
+                existingCar.ImageUrl = car.ImageUrl;
+
+                _context.Cars.Update(existingCar);
+                _context.SaveChanges();
+                return Ok(existingCar);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+        [HttpDelete("deleteCar/{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult DeleteCar(int id)
+        {
+            try
+            {
+                var car = _context.Cars.Find(id);
+                if (car == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+
+                _context.Cars.Remove(car);
+                _context.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
     }
 }
