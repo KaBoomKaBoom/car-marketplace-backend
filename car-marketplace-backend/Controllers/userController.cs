@@ -1,5 +1,6 @@
 namespace car_marketplace_backend.Controllers
 {
+    using System.Security.Claims;
     using car_marketplace_backend.Data;
     using car_marketplace_backend.DTOs;
     using car_marketplace_backend.Models;
@@ -167,6 +168,36 @@ namespace car_marketplace_backend.Controllers
                 await _context.SaveChangesAsync();
 
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("profile")]
+        [Authorize(Roles = "USER")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized("User not authenticated.");
+            }
+
+            try
+            {
+                var user = await _context.Users.FindAsync(int.Parse(userId));
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+                return Ok(new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email
+                });
             }
             catch (Exception ex)
             {
