@@ -1,4 +1,5 @@
 using car_marketplace_backend.Data;
+using car_marketplace_backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +47,28 @@ namespace car_marketplace_backend.Controllers
                     return NotFound($"User with ID {id} not found.");
                 }
                 return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("addUser")]
+        [Authorize(Roles = "ADMIN")]   
+        public IActionResult AddUser([FromBody] User user)
+        {
+            if (user == null || string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.PasswordHash))
+            {
+                return BadRequest("Invalid user data.");
+            }
+
+            try
+            {
+                user.Role = "USER"; // Default role for new users
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
             catch (Exception ex)
             {
