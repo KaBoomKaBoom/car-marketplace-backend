@@ -50,12 +50,42 @@ namespace car_marketplace_backend.Controllers
             };
 
             _context.Users.Add(user);
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
 
             return CreatedAtAction(nameof(SignUp), new { id = user.Id }, new UserDto
             {
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email
+            });
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public IActionResult Login([FromBody] LoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == loginDto.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            {
+                return Unauthorized("Invalid email or password");
+            }
+
+            return Ok(new
+            {
+                Token = new JwtHelper("your_secret_keygjhzklS:KkcvfhadlKSEWRQ8OiasjvhbjcsmklX;oih", "your_issuer", "your_audience")
+                    .GenerateToken(user.Id, user.Username, user.Role)
             });
         }
     }
