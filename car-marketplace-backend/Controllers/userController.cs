@@ -100,5 +100,57 @@ namespace car_marketplace_backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
             }
         }
+
+        [HttpPut("updateCar/{id}")]
+        [Authorize(Roles = "USER")]
+        public async Task<IActionResult> UpdateCar(int id, [FromBody] AddCarDto updateCarDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var car = await _context.Cars.FindAsync(id);
+                if (car == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+                if (car.UserId != updateCarDto.UserId)
+                {
+                    return Forbid("You can only update your own cars.");
+                }
+
+                car.Make = updateCarDto.Make;
+                car.Model = updateCarDto.Model;
+                car.Year = updateCarDto.Year;
+                car.Price = updateCarDto.Price;
+                car.Mileage = updateCarDto.Mileage;
+                car.Type = updateCarDto.Type;
+                car.Condition = updateCarDto.Condition;
+                car.Category = updateCarDto.Category;
+                car.Fuel = updateCarDto.Fuel;
+                car.ImageUrl = updateCarDto.ImageUrl;
+                car.HorsePower = updateCarDto.HorsePower;
+                car.Torque = updateCarDto.Torque;
+                car.Transmission = updateCarDto.Transmission;
+                car.Color = updateCarDto.Color;
+                car.Interior = updateCarDto.Interior;
+                car.Drive = updateCarDto.Drive;
+                car.Description = updateCarDto.Description;
+                car.CylinderCapacity = updateCarDto.CylinderCapacity;
+
+                _context.Cars.Update(car);
+                await _context.SaveChangesAsync();
+
+                return Ok(car);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+        
     }
 }
