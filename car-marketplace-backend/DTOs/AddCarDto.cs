@@ -27,6 +27,7 @@ namespace car_marketplace_backend.DTOs
         public string Color { get; set; } = string.Empty;
         public string Interior { get; set; } = string.Empty;
         public string Drive { get; set; } = string.Empty;
+        public string ImageURL { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal CylinderCapacity { get; set; }
     }

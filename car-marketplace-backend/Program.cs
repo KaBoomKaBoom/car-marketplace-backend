@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using car_marketplace_backend.Data;
+using car_marketplace_backend.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,7 +29,7 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer"
     });
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -45,7 +46,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddDbContext<CarMarketplaceContext>(options =>
-  options.UseNpgsql($"Host=db;Port=5432;Database=db;Username=postgres;Password=postgres;"));
+    options.UseNpgsql($"Host=db;Port=5432;Database=db;Username=postgres;Password=postgres;"));
 
 builder.Services.AddCors((options) =>
 {
@@ -92,17 +93,22 @@ var context = services.GetRequiredService<CarMarketplaceContext>();
 // Thread.Sleep(20000);
 // Console.WriteLine("Migrating database...");
 // context.Database.Migrate();
-// Console.WriteLine("Database migration completed.");
+// Console.WriteLine("Database migration completed");
 
-// Configure Swagger regardless of environment
+Thread.Sleep(20000);
+// Seed database
+var seeder = new DatabaseSeederHelper(context);
+await seeder.SeedAsync("cars.json");
+
+// Configure Swagger regardless of environmentAdd commentMore actions
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sample API v1");
     c.RoutePrefix = "swagger";
 });
-
 Console.WriteLine("Swagger UI available at: http://localhost:8080/swagger");
+
 
 if (app.Environment.IsDevelopment())
 {
