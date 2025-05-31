@@ -151,6 +151,27 @@ namespace car_marketplace_backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
             }
         }
-        
+        [HttpDelete("deleteCar/{id}")]
+        [Authorize(Roles = "USER")]
+        public async Task<IActionResult> DeleteCar(int id)
+        {
+            try
+            {
+                var car = await _context.Cars.FindAsync(id);
+                if (car == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+
+                _context.Cars.Remove(car);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
     }
 }
