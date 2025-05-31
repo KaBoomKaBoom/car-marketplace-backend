@@ -21,6 +21,27 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "A simple example ASP.NET Core Web API with Swagger"
     });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 builder.Services.AddDbContext<CarMarketplaceContext>(options =>
@@ -51,13 +72,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = "yourdomain.com",
             ValidAudience = "yourdomain.com",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_keygjhzklS:KkcvfhadlKSEWRQ8OiasjvhbjcsmklX;oih"))
         };
     });
 
@@ -68,10 +89,10 @@ var app = builder.Build();
 var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<CarMarketplaceContext>();
-Thread.Sleep(20000);
-Console.WriteLine("Migrating database...");
-context.Database.Migrate();
-Console.WriteLine("Database migration completed.");
+// Thread.Sleep(20000);
+// Console.WriteLine("Migrating database...");
+// context.Database.Migrate();
+// Console.WriteLine("Database migration completed.");
 
 // Configure Swagger regardless of environment
 app.UseSwagger();

@@ -1,6 +1,7 @@
 namespace car_marketplace_backend.Controllers
 {
     using car_marketplace_backend.Data;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ namespace car_marketplace_backend.Controllers
         }
 
         [HttpGet("cars")]
+        [Authorize(Roles = "USER")]
         public async Task<IActionResult> GetCars()
         {
             try
@@ -26,6 +28,25 @@ namespace car_marketplace_backend.Controllers
                     return NotFound("No cars found.");
                 }
                 return Ok(cars);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("cars/{id}")]
+        [Authorize(Roles = "USER")]
+        public async Task<IActionResult> GetCarById(int id)
+        {
+            try
+            {
+                var car = await _context.Cars.FindAsync(id);
+                if (car == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+                return Ok(car);
             }
             catch (Exception ex)
             {
