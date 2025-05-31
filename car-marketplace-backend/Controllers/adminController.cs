@@ -33,5 +33,24 @@ namespace car_marketplace_backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
             }
         }
+
+        [HttpGet("users/{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult GetUserById(int id)
+        {
+            try
+            {
+                var user = _context.Users.Find(id);
+                if (user == null)
+                {
+                    return NotFound($"User with ID {id} not found.");
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
     }
 }
