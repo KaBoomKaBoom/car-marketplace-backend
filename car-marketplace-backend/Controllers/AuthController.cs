@@ -88,5 +88,28 @@ namespace car_marketplace_backend.Controllers
                     .GenerateToken(user.Id, user.Username, user.Role)
             });
         }
+
+        [HttpPost("token")]
+        [AllowAnonymous]
+        public IActionResult GetToken([FromBody] TokenRequestDto tokenRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var role = tokenRequest.Role.ToUpper();
+            if (role != "ADMIN" && role != "USER")
+            {
+                return BadRequest("Invalid role. Must be ADMIN or USER");
+            }
+
+            // Here you would typically validate the role and generate a token accordingly
+            // For simplicity, we are returning a dummy token
+            var token = new JwtHelper("your_secret_keygjhzklS:KkcvfhadlKSEWRQ8OiasjvhbjcsmklX;oih", "your_issuer", "your_audience")
+                .GenerateToken(0, "dummyUser", role);
+
+            return Ok(new { Token = token });
+        }
     }
 }
