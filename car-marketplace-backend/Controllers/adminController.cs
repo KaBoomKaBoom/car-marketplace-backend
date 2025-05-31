@@ -106,7 +106,7 @@ namespace car_marketplace_backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
             }
         }
-        
+
         [HttpDelete("deleteUser/{id}")]
         [Authorize(Roles = "ADMIN")]
         public IActionResult DeleteUser(int id)
@@ -122,6 +122,43 @@ namespace car_marketplace_backend.Controllers
                 _context.Users.Remove(user);
                 _context.SaveChanges();
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("cars")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult GetCars()
+        {
+            try
+            {
+                var cars = _context.Cars.ToList();
+                if (cars == null || !cars.Any())
+                {
+                    return NotFound("No cars found.");
+                }
+                return Ok(cars);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {ex.Message}");
+            }
+        }
+        [HttpGet("cars/{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public IActionResult GetCarById(int id)
+        {
+            try
+            {
+                var car = _context.Cars.Find(id);
+                if (car == null)
+                {
+                    return NotFound($"Car with ID {id} not found.");
+                }
+                return Ok(car);
             }
             catch (Exception ex)
             {
