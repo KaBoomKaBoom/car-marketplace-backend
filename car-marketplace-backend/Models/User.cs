@@ -8,7 +8,6 @@
         public string PasswordHash { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Role { get; set; } = "USER";
-        public List<int> CarIds { get; set; } = new List<int>();
     }
 }
 

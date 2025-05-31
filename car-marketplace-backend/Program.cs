@@ -68,9 +68,10 @@ var app = builder.Build();
 var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<CarMarketplaceContext>();
-// Thread.Sleep(20000);
-// Console.WriteLine("Migrating database...");
-// context.Database.Migrate();
+Thread.Sleep(20000);
+Console.WriteLine("Migrating database...");
+context.Database.Migrate();
+Console.WriteLine("Database migration completed.");
 
 // Configure Swagger regardless of environment
 app.UseSwagger();

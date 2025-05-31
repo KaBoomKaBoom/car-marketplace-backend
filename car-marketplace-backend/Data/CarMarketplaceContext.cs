@@ -9,6 +9,7 @@ namespace car_marketplace_backend.Data
         {
         }
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Car> Cars { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +19,11 @@ namespace car_marketplace_backend.Data
             modelBuilder.Entity<User>()
                 .ToTable("Users", "dbo")
                 .HasIndex(u => u.Id)
+                .IsUnique();
+
+            modelBuilder.Entity<Car>()
+                .ToTable("Cars", "dbo")
+                .HasIndex(c => c.Id)
                 .IsUnique();
         }
     }
