@@ -1,5 +1,7 @@
 # Car Marketplace Backend API Documentation
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/KaBoomKaBoom/car-marketplace-backend)
+
 ## Overview
 
 The Car Marketplace Backend is a RESTful API built with .NET 9.0 and PostgreSQL, designed to manage a car marketplace application. It provides authentication, user management, and car listing functionality with role-based access control.
